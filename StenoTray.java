@@ -48,11 +48,11 @@ public class StenoTray extends JFrame {
     }
 
     private static final String CONFIG_DIR = mkPath(PLOVER_DIR, "stenotray.cfg");
-    private static boolean DEBUG = false;
+    private static boolean DEBUG = true;
 
     // global variables
     private static List<String> dictionaryFiles = new ArrayList<String>();
-    private static String logFile = mkPath(PLOVER_DIR, "plover.log");
+    private static String logFile = mkPath(PLOVER_DIR, "strokes.log");
     private static Dictionary dictionary; // the main dictionary
     private int limit = 0; // limit the number of responses
     private boolean simplify = false;
@@ -409,22 +409,12 @@ public class StenoTray extends JFrame {
         strokeFont = new Font(fontName, Font.BOLD, (fontSize));
         if (new File(ploverConfig).isFile()) {
             if (DEBUG) System.out.println("reading Plover config ("+ploverConfig+")...");
-            try {
-                BufferedReader pConfig = new BufferedReader(new FileReader(ploverConfig));
-                while (((line = pConfig.readLine()) != null)) {
-                    fields = line.split("=");
-                    if (fields.length >= 2) {
-                        if (fields[0].trim().length() > 15)
-                        if (fields[0].trim().substring(0,15).equals("dictionary_file"))
-                            dictionaryFiles.add(fields[1].trim());
-                        if (fields[0].trim().equals("log_file"))
-                            logFile = fields[1].trim();
-                    }
-                }
-                pConfig.close();
-            } catch (IOException e) {
-                System.err.println("Error reading Plover configuration file");
-            }
+            File file = new File(PLOVER_DIR);
+			File[] files = file.listFiles();
+			for(File f: files){
+				if(f.getName().contains(".json"))
+					dictionaryFiles.add(PLOVER_DIR + "\\" + f.getName());
+			}
             if (dictionaryFiles == null)
                 throw new java.lang.IllegalArgumentException("Unable to locate Plover dictionary file(s)");
             if (logFile == null)
